@@ -15,17 +15,24 @@ import {
   LogOut,
   Bell,
   Search,
-  Sparkles
+  Sparkles,
+  Apple,
+  Timer,
+  Calendar
 } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 import { Dashboard } from '@/src/components/Dashboard';
 import { Leaderboard } from '@/src/components/Leaderboard';
 import { TaskForm } from '@/src/components/TaskForm';
 import { TaskBoard } from '@/src/components/TaskBoard';
+import { CalendarView } from '@/src/components/CalendarView';
 import { LandingPage } from '@/src/components/LandingPage';
 import { LoginPage } from '@/src/components/LoginPage';
+import { NutritionAnalysis } from '@/src/components/NutritionAnalysis';
+import { FocusTimer } from '@/src/components/FocusTimer';
+import { Achievements } from '@/src/components/Achievements';
 import { NotificationCenter } from '@/src/components/NotificationCenter';
-import { Task, Goal, LeaderboardUser, Notification, View } from '@/src/types';
+import { Task, Goal, LeaderboardUser, Notification, View, Achievement } from '@/src/types';
 
 const INITIAL_TASKS: Task[] = [
   { id: '1', title: 'Plan the weekly wellness menu', category: 'health', completed: true, priority: 'medium', createdAt: Date.now() },
@@ -53,15 +60,51 @@ const INITIAL_NOTIFICATIONS: Notification[] = [
   { id: 'n2', title: 'Morning Routine', message: 'Remember your 15-minute journaling session.', type: 'task', timestamp: Date.now() - 7200000, read: true },
 ];
 
+const INITIAL_ACHIEVEMENTS: Achievement[] = [
+  { id: 'a1', title: 'Deep Work Pioneer', description: 'Complete your first focus session without interruptions.', icon: 'zap', unlocked: true, unlockedAt: Date.now() - 86400000, requirement: '1 Focus Session' },
+  { id: 'a2', title: 'Centurion of Focus', description: 'Log 100 deep work sessions in a single month.', icon: 'award', unlocked: false, requirement: '100 Focus Sessions' },
+  { id: 'a3', title: 'Absolute Intent', description: 'Complete all high-priority tasks for 3 consecutive days.', icon: 'target', unlocked: true, unlockedAt: Date.now() - 3600000, requirement: 'Streak: 3 Days' },
+  { id: 'a4', title: 'Bio-Sync Master', description: 'Analyze 50 meals using the AI Nutrition node.', icon: 'star', unlocked: false, requirement: '50 Nutrition Checks' },
+  { id: 'a5', title: 'Trajectory Captain', description: 'Reach Rank 1 in the community leaderboard.', icon: 'trophy', unlocked: false, requirement: 'Rank 1' },
+  { id: 'a6', title: 'Steady Guard', description: 'Maintain a 7-day task completion streak.', icon: 'shield', unlocked: false, requirement: 'Streak: 7 Days' },
+];
+
 export default function App() {
   const [activeView, setActiveView] = useState<View>('landing');
   const [user, setUser] = useState<{name: string, email: string} | null>(null);
   const [tasks, setTasks] = useState<Task[]>(INITIAL_TASKS);
   const [goals] = useState<Goal[]>(INITIAL_GOALS);
-  const [leaderboardUsers] = useState<LeaderboardUser[]>(INITIAL_LEADERBOARD);
+  const [achievements, setAchievements] = useState<Achievement[]>(INITIAL_ACHIEVEMENTS);
+  const [leaderboardUsers, setLeaderboardUsers] = useState<LeaderboardUser[]>(INITIAL_LEADERBOARD);
   const [notifications, setNotifications] = useState<Notification[]>(INITIAL_NOTIFICATIONS);
   const [searchQuery, setSearchQuery] = useState('');
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [focusTimeTotal, setFocusTimeTotal] = useState(0);
+
+  // Sync personal rank and identity
+  useEffect(() => {
+    if (user) {
+      setLeaderboardUsers(prev => {
+        const withUser = prev.map(u => 
+          u.id === 'me' ? { ...u, name: user.name } : u
+        );
+        return [...withUser]
+          .sort((a, b) => b.score - a.score)
+          .map((u, i) => ({ ...u, rank: i + 1 }));
+      });
+    }
+  }, [user]);
+
+  const updatePersonalScore = (points: number) => {
+    setLeaderboardUsers(prev => {
+      const updated = prev.map(u => 
+        u.id === 'me' ? { ...u, score: u.score + points, trend: 'up' as const } : u
+      );
+      return [...updated]
+        .sort((a, b) => b.score - a.score)
+        .map((u, i) => ({ ...u, rank: i + 1 }));
+    });
+  };
 
   const addNotification = (title: string, message: string, type: Notification['type']) => {
     const newNotif: Notification = {
@@ -131,9 +174,12 @@ export default function App() {
 
   const navItems = [
     { id: 'dashboard', label: 'Overview', icon: LayoutDashboard },
-    { id: 'tasks', label: 'My Focus', icon: ListTodo },
-    { id: 'goals', label: 'Milestones', icon: Target },
-    { id: 'leaderboard', label: 'Community', icon: Trophy },
+    { id: 'calendar', label: 'Calendar', icon: Calendar },
+    { id: 'tasks', label: 'To-Do List', icon: ListTodo },
+    { id: 'focus', label: 'Deep Work', icon: Timer },
+    { id: 'nutrition', label: 'AI Nutrition', icon: Apple },
+    { id: 'goals', label: 'Reputation', icon: Trophy },
+    { id: 'leaderboard', label: 'Community', icon: Target },
   ];
 
   useEffect(() => {
@@ -275,17 +321,29 @@ export default function App() {
               {activeView === 'tasks' && (
                 <TaskBoard tasks={tasks} onToggle={toggleTask} onDelete={deleteTask} />
               )}
+              {activeView === 'calendar' && (
+                <CalendarView tasks={tasks} />
+              )}
               {activeView === 'leaderboard' && (
                 <Leaderboard users={leaderboardUsers} />
               )}
+              {activeView === 'nutrition' && (
+                <NutritionAnalysis />
+              )}
+              {activeView === 'focus' && (
+                <FocusTimer onSessionComplete={(duration) => {
+                  setFocusTimeTotal(prev => prev + duration);
+                  updatePersonalScore(duration * 10); // 10 points per minute of focus
+                  addNotification('Neural Recovery Sync', `You completed a ${duration}m focus session. Growth score increased by ${duration * 10}.`, 'system');
+                  confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                  });
+                }} />
+              )}
               {activeView === 'goals' && (
-                <div className="flex flex-col items-center justify-center py-24 text-center">
-                  <div className="w-20 h-20 bg-teal-50 rounded-2xl flex items-center justify-center mb-6 text-teal-500">
-                    <Target className="w-10 h-10" />
-                  </div>
-                  <h2 className="text-3xl font-bold text-slate-900 mb-2 tracking-tight">Milestone Management</h2>
-                  <p className="text-slate-500 max-w-sm">Define your multi-year trajectory. This module is under active construction.</p>
-                </div>
+                <Achievements achievements={achievements} />
               )}
             </motion.div>
           </AnimatePresence>

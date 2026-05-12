@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CheckCircle2, Circle, Trash2, Calendar, Filter } from 'lucide-react';
 import { Task } from '@/src/types';
@@ -11,23 +11,36 @@ interface TaskBoardProps {
 }
 
 export const TaskBoard: React.FC<TaskBoardProps> = ({ tasks, onToggle, onDelete }) => {
+  const [filter, setFilter] = useState<'all' | 'high' | 'medium' | 'low'>('all');
+
+  const filteredTasks = tasks.filter(t => filter === 'all' || t.priority === filter);
+
   return (
     <div className="w-full max-w-4xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 lg:mb-10 gap-4">
         <div>
-          <h2 className="text-2xl lg:text-3xl font-sans font-bold text-slate-900 mb-1 tracking-tight">Current Focus</h2>
+          <h2 className="text-2xl lg:text-3xl font-sans font-bold text-slate-900 mb-1 tracking-tight">Focus Node</h2>
           <p className="text-slate-500 text-xs lg:text-sm">Strategic organization for personal daily objectives.</p>
         </div>
-        <div className="flex gap-2 self-start sm:self-auto">
-          <button className="p-3 bg-white border border-slate-200 rounded-xl text-slate-400 hover:text-teal-600 transition-all shadow-sm">
-            <Filter className="w-5 h-5" />
-          </button>
+        <div className="flex gap-2 self-start sm:self-auto bg-white p-1.5 rounded-2xl border border-slate-100 shadow-sm">
+          {['all', 'high', 'medium', 'low'].map((p) => (
+            <button
+              key={p}
+              onClick={() => setFilter(p as any)}
+              className={cn(
+                "px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all",
+                filter === p ? "bg-slate-900 text-white" : "text-slate-400 hover:text-slate-600 hover:bg-slate-50"
+              )}
+            >
+              {p}
+            </button>
+          ))}
         </div>
       </div>
 
       <div className="grid gap-4">
         <AnimatePresence mode="popLayout">
-          {tasks.length === 0 ? (
+          {filteredTasks.length === 0 ? (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -39,7 +52,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ tasks, onToggle, onDelete 
               <p className="text-slate-400 font-medium">All cleared. Set your next intention.</p>
             </motion.div>
           ) : (
-            tasks.map((task) => (
+            filteredTasks.map((task) => (
               <motion.div
                 key={task.id}
                 layout

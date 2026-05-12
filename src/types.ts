@@ -35,4 +35,14 @@ export interface Notification {
   read: boolean;
 }
 
-export type View = 'landing' | 'login' | 'dashboard' | 'tasks' | 'goals' | 'growth' | 'leaderboard';
+export interface Achievement {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  unlocked: boolean;
+  unlockedAt?: number;
+  requirement: string;
+}
+
+export type View = 'landing' | 'login' | 'dashboard' | 'tasks' | 'goals' | 'growth' | 'leaderboard' | 'nutrition' | 'focus' | 'calendar';
