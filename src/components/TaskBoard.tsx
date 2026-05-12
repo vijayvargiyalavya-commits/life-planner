@@ -13,12 +13,12 @@ interface TaskBoardProps {
 export const TaskBoard: React.FC<TaskBoardProps> = ({ tasks, onToggle, onDelete }) => {
   return (
     <div className="w-full max-w-4xl mx-auto">
-      <div className="flex items-center justify-between mb-10">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 lg:mb-10 gap-4">
         <div>
-          <h2 className="text-3xl font-sans font-bold text-slate-900 mb-1 tracking-tight">Current Focus</h2>
-          <p className="text-slate-500 text-sm">Strategic organization for personal daily objectives.</p>
+          <h2 className="text-2xl lg:text-3xl font-sans font-bold text-slate-900 mb-1 tracking-tight">Current Focus</h2>
+          <p className="text-slate-500 text-xs lg:text-sm">Strategic organization for personal daily objectives.</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 self-start sm:self-auto">
           <button className="p-3 bg-white border border-slate-200 rounded-xl text-slate-400 hover:text-teal-600 transition-all shadow-sm">
             <Filter className="w-5 h-5" />
           </button>
@@ -47,46 +47,46 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ tasks, onToggle, onDelete 
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 className={cn(
-                  "bg-white p-5 rounded-2xl border border-slate-100 shadow-sm transition-all group flex items-center gap-6",
+                  "bg-white p-4 lg:p-5 rounded-2xl border border-slate-100 shadow-sm transition-all group flex items-start lg:items-center gap-4 lg:gap-6",
                   task.completed && "opacity-75 grayscale-[0.3]"
                 )}
               >
                 <button
                   onClick={() => onToggle(task.id)}
                   className={cn(
-                    "w-10 h-10 rounded-xl flex items-center justify-center transition-all",
+                    "w-8 h-8 lg:w-10 lg:h-10 rounded-xl flex items-center justify-center transition-all shrink-0 mt-1 lg:mt-0",
                     task.completed 
                       ? "bg-teal-600 text-white shadow-lg shadow-teal-100" 
                       : "bg-slate-50 text-slate-300 hover:text-teal-600 hover:bg-teal-50"
                   )}
                 >
-                  {task.completed ? <CheckCircle2 className="w-6 h-6" /> : <Circle className="w-6 h-6" />}
+                  {task.completed ? <CheckCircle2 className="w-5 h-5 lg:w-6 lg:h-6" /> : <Circle className="w-5 h-5 lg:w-6 lg:h-6" />}
                 </button>
 
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-1">
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-wrap items-center gap-2 lg:gap-3 mb-1">
                     <span className={cn(
-                      "px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest",
+                      "px-2 py-0.5 rounded-md text-[8px] lg:text-[9px] font-black uppercase tracking-widest",
                       task.priority === 'high' ? "bg-rose-50 text-rose-500" :
                       task.priority === 'medium' ? "bg-amber-50 text-amber-500" : "bg-teal-50 text-teal-600"
                     )}>
                       {task.priority}
                     </span>
-                    <span className="text-[10px] text-slate-300 flex items-center gap-1 uppercase font-bold tracking-tight">
+                    <span className="text-[9px] lg:text-[10px] text-slate-300 flex items-center gap-1 uppercase font-bold tracking-tight">
                       <Calendar className="w-3 h-3" />
                       {new Date(task.createdAt).toLocaleDateString()}
                     </span>
                   </div>
                   <h3 className={cn(
-                    "text-xl font-sans font-bold transition-all",
+                    "text-lg lg:text-xl font-sans font-bold transition-all truncate",
                     task.completed ? "text-slate-300 line-through" : "text-slate-800"
                   )}>
                     {task.title}
                   </h3>
                 </div>
 
-                <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <span className={cn("px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest", 
+                <div className="flex items-center gap-2 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
+                  <span className={cn("hidden sm:block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest", 
                     task.category === 'work' ? "bg-blue-50 text-blue-500" :
                     task.category === 'personal' ? "bg-rose-50 text-rose-500" : "bg-teal-50 text-teal-600"
                   )}>
@@ -96,7 +96,7 @@ export const TaskBoard: React.FC<TaskBoardProps> = ({ tasks, onToggle, onDelete 
                     onClick={() => onDelete(task.id)}
                     className="p-3 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all"
                   >
-                    <Trash2 className="w-5 h-5" />
+                    <Trash2 className="w-4 h-4 lg:w-5 lg:h-5" />
                   </button>
                 </div>
               </motion.div>

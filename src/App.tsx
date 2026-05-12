@@ -123,6 +123,16 @@ export default function App() {
     { id: 'leaderboard', label: 'Community', icon: Trophy },
   ];
 
+  useEffect(() => {
+    const appHeight = () => {
+      const doc = document.documentElement;
+      doc.style.setProperty('--app-height', `${window.innerHeight}px`);
+    };
+    window.addEventListener('resize', appHeight);
+    appHeight();
+    return () => window.removeEventListener('resize', appHeight);
+  }, []);
+
   if (activeView === 'landing') {
     return <LandingPage onStart={() => setActiveView('dashboard')} />;
   }
@@ -130,12 +140,12 @@ export default function App() {
   const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
-    <div className="flex h-screen bg-slate-50 font-sans selection:bg-teal-100 selection:text-teal-900 overflow-hidden text-slate-900 relative">
+    <div className="flex flex-col lg:flex-row h-screen-dynamic lg:h-screen bg-slate-50 font-sans selection:bg-teal-100 selection:text-teal-900 overflow-hidden text-slate-900 relative">
       {/* Texture Overlay */}
       <div className="fixed inset-0 pointer-events-none opacity-[0.03] contrast-150 z-[100] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
 
-      {/* Sidebar Navigation */}
-      <aside className="w-24 lg:w-80 bg-white border-r border-slate-100 flex flex-col p-8 z-50 relative">
+      {/* Sidebar Navigation - Desktop only */}
+      <aside className="hidden lg:flex w-24 lg:w-80 bg-white border-r border-slate-100 flex-col p-8 z-50 relative">
         <div className="flex items-center gap-4 mb-20 px-2 leading-none">
           <div className="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center shadow-2xl shadow-slate-900/10">
             <Sparkles className="text-teal-400 w-6 h-6" />
@@ -189,42 +199,42 @@ export default function App() {
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-y-auto overflow-x-hidden relative">
+      <main className="flex-1 flex flex-col min-w-0 overflow-y-auto overflow-x-hidden relative pb-24 lg:pb-0">
         {/* Top Navbar */}
-        <header className="h-24 bg-white/40 backdrop-blur-xl border-b border-slate-100 px-12 flex items-center justify-between sticky top-0 z-40">
+        <header className="h-20 lg:h-24 bg-white/40 backdrop-blur-xl border-b border-slate-100 px-6 lg:px-12 flex items-center justify-between sticky top-0 z-40">
            <div className="flex-1 max-w-lg">
              <div className="relative group">
                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-teal-500 transition-colors" />
                <input
                 type="text"
-                placeholder="Search trajectory node..."
+                placeholder="Search trajectory..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-slate-50/50 border border-transparent rounded-xl py-3 pl-12 pr-4 text-sm focus:bg-white focus:border-slate-200 placeholder:text-slate-400 outline-none transition-all font-medium"
+                className="w-full bg-white lg:bg-slate-50/50 border border-slate-100 lg:border-transparent rounded-xl py-2.5 lg:py-3 pl-10 lg:pl-12 pr-4 text-xs lg:text-sm focus:bg-white focus:border-slate-200 placeholder:text-slate-400 outline-none transition-all font-medium"
                />
              </div>
            </div>
            
-           <div className="flex items-center gap-8 ml-10">
-             <div className="flex items-center gap-2 group cursor-pointer" onClick={() => addNotification('System Status', 'All nodes operational. Trajectory optimal.', 'system')}>
+           <div className="flex items-center gap-4 lg:gap-8 ml-4 lg:ml-10">
+             <div className="hidden sm:flex items-center gap-2 group cursor-pointer" onClick={() => addNotification('System Status', 'All nodes operational. Trajectory optimal.', 'system')}>
                <div className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
-               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest group-hover:text-slate-600 transition-colors">Sync Active</span>
+               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest group-hover:text-slate-600 transition-colors">Sync</span>
              </div>
-             <div className="w-px h-6 bg-slate-200" />
+             <div className="hidden sm:block w-px h-6 bg-slate-200" />
              <button 
                onClick={() => setIsNotificationsOpen(true)}
-               className="relative w-12 h-12 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-teal-600 hover:border-teal-100 transition-all shadow-sm"
+               className="relative w-10 h-10 lg:w-12 lg:h-12 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-teal-600 hover:border-teal-100 transition-all shadow-sm"
               >
-               <Bell className="w-5 h-5" />
+               <Bell className="w-4 h-4 lg:w-5 lg:h-5" />
                {unreadCount > 0 && (
-                 <div className="absolute top-3 right-3 w-2 h-2 bg-rose-500 rounded-full border-2 border-white" />
+                 <div className="absolute top-2.5 right-2.5 lg:top-3 lg:right-3 w-2 h-2 bg-rose-500 rounded-full border-2 border-white" />
                )}
              </button>
            </div>
         </header>
 
         {/* Dynamic View Section */}
-        <div className="p-12 max-w-[1500px] mx-auto w-full pb-32">
+        <div className="p-6 lg:p-12 max-w-[1500px] mx-auto w-full pb-32">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeView}
@@ -255,6 +265,32 @@ export default function App() {
           </AnimatePresence>
         </div>
       </main>
+
+      {/* Mobile Bottom Navigation */}
+      <nav className="lg:hidden fixed bottom-6 left-6 right-6 bg-slate-900/95 backdrop-blur-md rounded-[2.5rem] p-2 flex items-center justify-between z-[60] shadow-2xl shadow-slate-900/40 border border-white/10">
+        {navItems.map((item) => (
+          <button
+            key={item.id}
+            onClick={() => setActiveView(item.id as View)}
+            className={cn(
+              "flex-1 flex flex-col items-center gap-1 py-3 rounded-[2rem] transition-all relative overflow-hidden",
+              activeView === item.id ? "text-teal-400" : "text-slate-400 hover:text-white"
+            )}
+          >
+            <item.icon className={cn(
+              "w-5 h-5 transition-transform duration-300",
+              activeView === item.id && "scale-110"
+            )} />
+            <span className="text-[7px] font-black uppercase tracking-[0.1em]">{item.label}</span>
+            {activeView === item.id && (
+              <motion.div
+                layoutId="activeNavMobile"
+                className="absolute bottom-0 w-8 h-1 bg-teal-400 rounded-full"
+              />
+            )}
+          </button>
+        ))}
+      </nav>
 
       {/* Notification Center */}
       <NotificationCenter

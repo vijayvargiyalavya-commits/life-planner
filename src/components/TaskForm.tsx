@@ -34,7 +34,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onAdd }) => {
       <button
         id="open-task-form"
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-8 right-8 w-14 h-14 bg-teal-600 text-white rounded-xl shadow-lg shadow-teal-200 hover:bg-teal-700 transition-all flex items-center justify-center z-50 group hover:scale-110 active:scale-95"
+        className="fixed bottom-28 lg:bottom-8 right-6 lg:right-8 w-14 h-14 bg-teal-600 text-white rounded-xl shadow-lg shadow-teal-200 hover:bg-teal-700 transition-all flex items-center justify-center z-50 group hover:scale-110 active:scale-95"
       >
         <Plus className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" />
       </button>
@@ -55,24 +55,24 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onAdd }) => {
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-100"
             >
-              <div className="p-8">
-                <div className="flex justify-between items-center mb-8">
-                  <h2 className="text-2xl font-sans font-bold text-slate-800 tracking-tight">Set New Intention</h2>
+              <div className="p-6 lg:p-8">
+                <div className="flex justify-between items-center mb-6 lg:mb-8">
+                  <h2 className="text-xl lg:text-2xl font-sans font-bold text-slate-800 tracking-tight">Set New Intention</h2>
                   <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-slate-600 p-2 hover:bg-slate-50 rounded-lg transition-colors">
-                    <X className="w-6 h-6" />
+                    <X className="w-5 h-5 lg:w-6 lg:h-6" />
                   </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-5 lg:space-y-6">
                   <div>
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">What is your focus?</label>
+                    <label className="block text-[9px] lg:text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">What is your focus?</label>
                     <input
                       autoFocus
                       type="text"
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
                       placeholder="e.g. Master React fundamentals"
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 outline-none transition-all text-sm"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 outline-none transition-all text-xs lg:text-sm"
                     />
                   </div>
 
