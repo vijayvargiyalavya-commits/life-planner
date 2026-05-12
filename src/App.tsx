@@ -23,6 +23,7 @@ import { Leaderboard } from '@/src/components/Leaderboard';
 import { TaskForm } from '@/src/components/TaskForm';
 import { TaskBoard } from '@/src/components/TaskBoard';
 import { LandingPage } from '@/src/components/LandingPage';
+import { LoginPage } from '@/src/components/LoginPage';
 import { NotificationCenter } from '@/src/components/NotificationCenter';
 import { Task, Goal, LeaderboardUser, Notification, View } from '@/src/types';
 
@@ -54,6 +55,7 @@ const INITIAL_NOTIFICATIONS: Notification[] = [
 
 export default function App() {
   const [activeView, setActiveView] = useState<View>('landing');
+  const [user, setUser] = useState<{name: string, email: string} | null>(null);
   const [tasks, setTasks] = useState<Task[]>(INITIAL_TASKS);
   const [goals] = useState<Goal[]>(INITIAL_GOALS);
   const [leaderboardUsers] = useState<LeaderboardUser[]>(INITIAL_LEADERBOARD);
@@ -71,6 +73,17 @@ export default function App() {
       read: false,
     };
     setNotifications(prev => [newNotif, ...prev]);
+  };
+
+  const handleLogin = (userData: { name: string; email: string }) => {
+    setUser(userData);
+    setActiveView('dashboard');
+    addNotification('Terminal Synchronized', `Welcome back, ${userData.name.split(' ')[0]}. System status: Optimal.`, 'system');
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    setActiveView('landing');
   };
 
   const addTask = (taskData: Omit<Task, 'id' | 'createdAt' | 'completed'>) => {
@@ -134,7 +147,11 @@ export default function App() {
   }, []);
 
   if (activeView === 'landing') {
-    return <LandingPage onStart={() => setActiveView('dashboard')} />;
+    return <LandingPage onStart={() => setActiveView('login')} />;
+  }
+
+  if (activeView === 'login') {
+    return <LoginPage onLogin={handleLogin} onBack={() => setActiveView('landing')} />;
   }
 
   const unreadCount = notifications.filter(n => !n.read).length;
@@ -181,19 +198,28 @@ export default function App() {
           ))}
         </nav>
 
-        <div className="pt-10 mt-auto border-t border-slate-50">
-          <div className="flex items-center gap-4 p-2">
-            <div className="w-12 h-12 rounded-2xl bg-teal-50 border border-teal-100 p-0.5 overflow-hidden">
-              <img 
-                src="https://i.pravatar.cc/150?u=me" 
-                alt="Me" 
-                className="w-full h-full rounded-[0.85rem] object-cover grayscale-[0.2]"
-              />
+        <div className="pt-10 mt-auto border-t border-slate-50 space-y-4">
+          <div className="flex items-center justify-between group/user">
+            <div className="flex items-center gap-4 p-2">
+              <div className="w-12 h-12 rounded-2xl bg-teal-50 border border-teal-100 p-0.5 overflow-hidden">
+                <img 
+                  src={`https://i.pravatar.cc/150?u=${user?.email || 'me'}`} 
+                  alt="Me" 
+                  className="w-full h-full rounded-[0.85rem] object-cover grayscale-[0.2]"
+                />
+              </div>
+              <div className="hidden lg:block">
+                <p className="text-sm font-extrabold text-slate-900 tracking-tight truncate w-32">{user?.name || 'Alex Sterling'}</p>
+                <p className="text-[10px] font-bold text-teal-600 uppercase tracking-widest leading-none mt-1">Growth Tier 4</p>
+              </div>
             </div>
-            <div className="hidden lg:block">
-              <p className="text-sm font-extrabold text-slate-900 tracking-tight">Alex Sterling</p>
-              <p className="text-[10px] font-bold text-teal-600 uppercase tracking-widest leading-none mt-1">Growth Tier 4</p>
-            </div>
+            <button 
+              onClick={handleLogout}
+              className="lg:opacity-0 group-hover/user:opacity-100 p-3 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all"
+              title="Sign Out"
+            >
+              <LogOut className="w-5 h-5" />
+            </button>
           </div>
         </div>
       </aside>
